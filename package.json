@@ -1,0 +1,28 @@
+{
+  "name": "amirizad",
+  "version": "1.0.0",
+  "description": "Web app that lets users leave comments on the latest news.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amirizad/Your-comments-on-News"
+  },
+  "author": "amirizad",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amirizad/Your-comments-on-News"
+  },
+  "homepage": "https://your-comments-on-news.herokuapp.com",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.15.3",
+    "express-handlebars": "^3.0.0",
+    "mongoose": "^4.11.3",
+    "morgan": "^1.8.2",
+    "request": "^2.81.0"
+  }
+}
