@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({
 
 app.use(express.static("public"));
 
-var databaseUri = 'mongodb://localhost/newsdoc';
+var databaseUri = 'mongodb://localhost/newsdb';
 
 if (process.env.MANGODB_URI){
   mongoose.connect(process.env.MANGODB_URI);
@@ -71,6 +71,6 @@ app.get('/scrape', function(req, res){
   });
 });
 
-app.listen(8080, function() {
+app.listen(PORT, function() {
   console.log("App running on port " + PORT);
 });
