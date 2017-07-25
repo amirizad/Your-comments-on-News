@@ -24,8 +24,8 @@ app.use(express.static("public"));
 
 var databaseUri = 'mongodb://localhost/newsdb';
 
-if (process.env.MANGODB_URI){
-  mongoose.connect(process.env.MANGODB_URI);
+if (process.env.MONGODB_URI){
+  mongoose.connect(process.env.MONGODB_URI);
 } else {
   mongoose.connect(databaseUri);
 }
@@ -35,7 +35,7 @@ db.on("error", function(error) {
   console.log("My Mongoose Error: ", error);
 });
 
-db.once("open", function() {
+db.once("openUri", function() {
   console.log("Mongoose connection successful.");
 });
 
