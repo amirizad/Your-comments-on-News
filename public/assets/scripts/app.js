@@ -1,6 +1,15 @@
 $('#scrapebtn').click(function(e){
   e.preventDefault();
-  $.getJSON("/scrape", function(data) {
+  $.get("/scrape", function(data) {
+    if ( data === 'completed'){
+      $('#scrapebtn').attr('disabled', true);
+      $('#scrapemodal').modal('show');
+    };
+  });  
+});
+
+$('#scrapemodal').on('hide.bs.modal', function () {
+  $.getJSON("/articles", function(data) {
     for (var i = 0; i < data.length; i++) {
       var $panel = $('<div>').addClass('panel panel-info');
       var $header = $('<div>').addClass('panel-heading');
@@ -15,11 +24,11 @@ $('#scrapebtn').click(function(e){
       $body.append($img, $p);
       var $footer = $('<div>').addClass('panel-footer');
       var $btn = $('<button>').addClass('savebtn btn btn-success')
-        .attr('type','button').text('SAVE ARTICLE');
+        .attr({'type':'button', 'data-id': data[i]._id}).text('SAVE ARTICLE');
       $footer.append($btn)
 
       $panel.append($header, $body, $footer);
       $("#articles").append($panel);
     }
   });  
-});
+})

@@ -48,9 +48,11 @@ app.get('/scrape', function(req, res){
       result.link = 'http://www.latimes.com' + $(this).find("a.trb_outfit_relatedListTitle_a").attr("href");
       var img = $(this).find("img.trb_outfit_group_list_item_img").attr("data-baseurl")
       result.image = img ? img + '/200/200x113' : 'assets/images/la-times.jpg';
-      result.brief = $(this).find("p.trb_outfit_group_list_item_brief").text();
+      var brief = $(this).find("p.trb_outfit_group_list_item_brief").text();
+      result.brief = brief ? brief : result.title;
       
       var entry = new Article(result);
+
       entry.save(function(err, doc) {
         if (err) {
           console.log(err);
@@ -60,14 +62,18 @@ app.get('/scrape', function(req, res){
         }
       });
     });
-    Article.find({}, function(error, doc) {
-      if (error) {
-        res.send(error);
-      }
-      else {
-        res.send(doc);
-      }
-    });
+  });
+  res.send('completed');
+});
+
+app.get("/articles", function(req, res) {
+  Article.find({}, function(error, doc) {
+    if (error) {
+      res.send(error);
+    }
+    else {
+      res.json(doc);
+    }
   });
 });
 
