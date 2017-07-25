@@ -30,7 +30,6 @@ if (process.env.MANGODB_URI){
 }
 
 var db = mongoose.connection;
-
 db.on("error", function(error) {
   console.log("My Mongoose Error: ", error);
 });
