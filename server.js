@@ -2,14 +2,16 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
-var request = require("request");
-var cheerio = require("cheerio");
 
 var Note = require("./models/Note.js");
 var Article = require("./models/Article.js");
 
-var app = express();
+var request = require("request");
+var cheerio = require("cheerio");
+
 mongoose.Promise = Promise;
+
+var app = express();
 
 app.use(logger("dev"));
 
@@ -19,7 +21,7 @@ app.use(bodyParser.urlencoded({
 
 app.use(express.static("public"));
 
-var databaseUri = 'mongodb://localhost/newsdb';
+var databaseUri = 'mongodb://localhost/newsdoc';
 
 if (process.env.MANGODB_URI){
   mongoose.connect(process.env.MANGODB_URI);
@@ -30,7 +32,7 @@ if (process.env.MANGODB_URI){
 var db = mongoose.connection;
 
 db.on("error", function(error) {
-  console.log("Mongoose Error: ", error);
+  console.log("My Mongoose Error: ", error);
 });
 
 db.once("open", function() {
