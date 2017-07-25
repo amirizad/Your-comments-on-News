@@ -12,6 +12,7 @@ var cheerio = require("cheerio");
 mongoose.Promise = Promise;
 
 var app = express();
+var PORT = process.env.PORT || 8080;
 
 app.use(logger("dev"));
 
@@ -71,5 +72,5 @@ app.get('/scrape', function(req, res){
 });
 
 app.listen(8080, function() {
-  console.log("App running on port 8080!");
+  console.log("App running on port " + PORT);
 });
