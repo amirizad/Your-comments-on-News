@@ -31,43 +31,16 @@ if (process.env.MONGODB_URI){
 }
 
 var db = mongoose.connection;
-db.on("error", function(error) {
+db.on("error", (error) => {
   console.log("My Mongoose Error: ", error);
 });
 
-db.once("openUri", function() {
+db.once("openUri", () => {
   console.log("Mongoose connection successful.");
 });
 
-app.get('/scrape', function(req, res){
-  request("http://www.latimes.com/local/", function(error, response, html) {
-    var $ = cheerio.load(html);
-    $('li.trb_outfit_group_list_item').each(function(i, element) {
-      var result = {};
-      result.title = $(this).find("a.trb_outfit_relatedListTitle_a").text();
-      result.link = 'http://www.latimes.com' + $(this).find("a.trb_outfit_relatedListTitle_a").attr("href");
-      var img = $(this).find("img.trb_outfit_group_list_item_img").attr("data-baseurl")
-      result.image = img ? img + '/200/200x113' : 'assets/images/la-times.jpg';
-      var brief = $(this).find("p.trb_outfit_group_list_item_brief").text();
-      result.brief = brief ? brief : result.title;
-      
-      var entry = new Article(result);
-
-      entry.save(function(err, doc) {
-        if (err) {
-          console.log(err);
-        }
-        else {
-          console.log(doc);
-        }
-      });
-    });
-  });
-  res.send('completed');
-});
-
-app.get("/articles", function(req, res) {
-  Article.find({}, function(error, doc) {
+app.get("/articles", (req, res) => {
+  Article.find({}, (error, doc) => {
     if (error) {
       res.send(error);
     }
@@ -77,6 +50,117 @@ app.get("/articles", function(req, res) {
   });
 });
 
-app.listen(PORT, function() {
+app.get('/scrape', (req, res) => {
+  request("http://www.latimes.com/local/", (error, response, html) => {
+    var $ = cheerio.load(html);
+    var counter = 0;
+    $('li.trb_outfit_group_list_item').each(function(i, element){
+      counter += 1;
+      if ( counter > 8 ) {
+        var result = {};
+        result.title = $(this).find("a.trb_outfit_relatedListTitle_a").text();
+        var dateTime = $(this).find("span.trb_outfit_categorySectionHeading_date").attr('data-dt');
+        result.dt = dateTime ? dateTime : '---';
+        result.link = 'http://www.latimes.com' + $(this).find("a.trb_outfit_relatedListTitle_a").attr("href");
+        var img = $(this).find("img.trb_outfit_group_list_item_img").attr("data-baseurl")
+        result.image = img ? img + '/200/200x113' : 'assets/images/la-times.jpg';
+        var brief = $(this).find("p.trb_outfit_group_list_item_brief").text();
+        result.brief = brief ? brief : result.title;
+        var entry = new Article(result);
+        entry.save((err, doc) => {
+          if (err) {
+            console.log(err);
+          }
+          else {
+            console.log(doc);
+          }
+        });
+      };
+    })
+  })
+  res.send('completed');
+});
+
+app.post("/articles/save/:id", (req, res) => {
+  var id = req.params.id;
+  Article.update({_id: id},{
+    $set: {saved: true}
+  },(err, doc) => {
+      if (err) {
+        console.log(err);
+      }
+      else {
+        Article.find({}, (error, doc) => {
+          if (error) {
+            res.send(error);
+          }
+          else {
+            res.json(doc);
+          }
+        });
+      }
+    }
+  );
+});
+
+app.post("/articles/delete/:id", (req, res) => {
+  var id = req.params.id;
+  Article.update({_id: id},{
+    $set: {saved: false}
+  },(err, doc) => {
+      if (err) {
+        console.log(err);
+      }
+      else {
+        Article.find({}, (error, doc) => {
+          if (error) {
+            res.send(error);
+          }
+          else {
+            res.json(doc);
+          }
+        });
+      }
+    }
+  );
+});
+
+app.get('/articles/notes/:id', (req, res) => {
+  var id = req.params.id;
+  Article.findOne({"_id":id})
+  .populate("note")
+  .exec( (err,doc) => {
+    if(err){
+      console.log(err);
+    } else {
+      console.log(doc);
+      res.json(doc);
+    };
+  });
+});
+
+
+app.post('/articles/notes/:id?', (req, res) => {
+  var id = req.params.id;
+  var newNote = new Note(req.body);
+  newNote.save((error, doc) => {
+    if (error) {
+      res.send(error);
+    }
+    else {
+      Article.findOneAndUpdate({ "_id": id }, {$push:{"note": doc._id}})
+      .exec((err, doc) => {
+        if (err) {
+          console.log(err);
+        }
+        else {
+          res.send(doc._id);
+        }
+      });
+    }
+  });
+});
+
+app.listen(PORT, () => {
   console.log("App running on port " + PORT);
 });
